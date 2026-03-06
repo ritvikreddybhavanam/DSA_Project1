@@ -1,11 +1,10 @@
 package services;
 
 import datastructures.MaxHeap;
-import datastructures.MyStack; // FIXED: Added missing import
-import datastructures.Node;    // FIXED: Added missing import
+import datastructures.MyStack;
+import datastructures.Node;    
 import models.Task;
-// Note: If 'Main' is in the default package, you cannot import it.
-// It's better to move 'Main' to a package or define constants locally.
+
 
 public class TaskLinkedList {
     private Node head;
@@ -43,7 +42,6 @@ public class TaskLinkedList {
 
     public void displayTasks() {
         if (head == null) {
-            // Suggestion: Define these color constants in a 'UIUtils' class instead of 'Main'
             System.out.println("\n   📂 Task list is empty.");
             return;
         }
@@ -151,19 +149,41 @@ public class TaskLinkedList {
     }
 
     public void showTasksByPriority() {
-        // FIXED: Ensure MaxHeap constructor handles this or uses a default
-        MaxHeap heap = new MaxHeap(100);
+        // Check if list is empty before building the heap
+        if (head == null) {
+            System.out.println(UIUtils.YELLOW + "\n   📂 No tasks available to prioritize." + UIUtils.RESET);
+            return;
+        }
 
+        // Initialize MaxHeap
+        MaxHeap heap = new MaxHeap(100);
         Node temp = head;
+
+        // Fill the heap with tasks from the linked list
         while (temp != null) {
             heap.insert(temp.task);
             temp = temp.next;
         }
 
-        System.out.println("\nTasks by priority (Highest First):");
+        // Header UI
+        System.out.println("\n" + UIUtils.PURPLE + UIUtils.BOLD + "   ⭐ PRIORITY RANKING (Highest First)" + UIUtils.RESET);
+        System.out.println(UIUtils.CYAN + "   ┌──────────┬──────┬──────────────────────────────────┐");
+        System.out.printf("   │ %-8s │ %-4s │ %-32s │\n", "RANK", "PRIO", "TASK TITLE");
+        System.out.println("   ├──────────┼──────┼──────────────────────────────────┤" + UIUtils.RESET);
+
+        int rank = 1;
         while (!heap.isEmpty()) {
             Task task = heap.extractMax();
-            System.out.println("Priority: " + task.getPriority() + " | Task: " + task.getTitle());
+
+            // Color-coding based on priority level
+            String prioColor = (task.getPriority() >= 7) ? UIUtils.RED : (task.getPriority() >= 4) ? UIUtils.YELLOW : UIUtils.GREEN;
+
+            System.out.printf("   │ #%-7d │ " + prioColor + "%-4d" + UIUtils.RESET + " │ %-32s │\n",
+                    rank++,
+                    task.getPriority(),
+                    task.getTitle());
         }
+
+        System.out.println(UIUtils.CYAN + "   └──────────┴──────┴──────────────────────────────────┘" + UIUtils.RESET);
     }
 }
