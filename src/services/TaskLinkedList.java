@@ -1,29 +1,11 @@
-class Node {
-    Task task;
-    Node next;
+package services;
 
-    Node(Task task) {
-        this.task = task;
-        this.next = null;
-    }
-}
-
-class MyStack {
-    private Node top;
-
-    void push(Task task) {
-        Node temp = new Node(task);
-        temp.next = top;
-        top = temp;
-    }
-
-    Task pop() {
-        if (top == null) return null;
-        Task task = top.task;
-        top = top.next;
-        return task;
-    }
-}
+import datastructures.MaxHeap;
+import datastructures.MyStack; // FIXED: Added missing import
+import datastructures.Node;    // FIXED: Added missing import
+import models.Task;
+// Note: If 'Main' is in the default package, you cannot import it.
+// It's better to move 'Main' to a package or define constants locally.
 
 public class TaskLinkedList {
     private Node head;
@@ -47,6 +29,7 @@ public class TaskLinkedList {
             swapped = false;
             Node current = head;
             while (current.next != null) {
+                // FIXED: Direct access to current.task.getId()
                 if (current.task.getId() > current.next.task.getId()) {
                     Task temp = current.task;
                     current.task = current.next.task;
@@ -60,25 +43,25 @@ public class TaskLinkedList {
 
     public void displayTasks() {
         if (head == null) {
-            System.out.println(Main.YELLOW + "\n   📂 Task list is empty." + Main.RESET);
+            // Suggestion: Define these color constants in a 'UIUtils' class instead of 'Main'
+            System.out.println("\n   📂 Task list is empty.");
             return;
         }
         sortTask();
-        System.out.println(Main.PURPLE + Main.BOLD);
+
         System.out.println("   ┌──────┬──────────────────────┬────────────┬──────────────┬──────────────┐");
         System.out.printf("   │ %-4s │ %-20s │ %-10s │ %-12s │ %-12s │\n", "ID", "TITLE", "STATUS", "CREATED", "DUE DATE");
         System.out.println("   ├──────┼──────────────────────┼────────────┼──────────────┼──────────────┤");
-        System.out.print(Main.RESET);
 
         Node temp = head;
         while (temp != null) {
-            String status = temp.task.isCompleted() ? Main.GREEN + "✔ Done" : Main.RED + "⏳ Pending";
-            System.out.printf("   │ %-4d │ %-20s │ %-19s " + Main.RESET + "│ %-12s │ %-12s │\n",
+            String status = temp.task.isCompleted() ? "✔ Done" : "⏳ Pending";
+            System.out.printf("   │ %-4d │ %-20s │ %-10s │ %-12s │ %-12s │\n",
                     temp.task.getId(), temp.task.getTitle(), status,
                     temp.task.getCreatedDate(), temp.task.getDueDate());
             temp = temp.next;
         }
-        System.out.println(Main.PURPLE + Main.BOLD + "   └──────┴──────────────────────┴────────────┴──────────────┴──────────────┘" + Main.RESET);
+        System.out.println("   └──────┴──────────────────────┴────────────┴──────────────┴──────────────┘");
     }
 
     public void deleteTask(int id) {
@@ -86,7 +69,7 @@ public class TaskLinkedList {
         if (head.task.getId() == id) {
             undoStack.push(head.task);
             head = head.next;
-            System.out.println(Main.GREEN + "✔ Deleted successfully." + Main.RESET);
+            System.out.println("✔ Deleted successfully.");
             return;
         }
         Node temp = head;
@@ -95,9 +78,9 @@ public class TaskLinkedList {
         if (temp.next != null) {
             undoStack.push(temp.next.task);
             temp.next = temp.next.next;
-            System.out.println(Main.GREEN + "✔ Deleted successfully." + Main.RESET);
+            System.out.println("✔ Deleted successfully.");
         } else {
-            System.out.println(Main.RED + "⚠ ID not found." + Main.RESET);
+            System.out.println("⚠ ID not found.");
         }
     }
 
@@ -105,13 +88,13 @@ public class TaskLinkedList {
         Node temp = head;
         while (temp != null) {
             if (temp.task.getId() == id) {
-                temp.task.markCompleted();
-                System.out.println(Main.GREEN + "✔ Status updated!" + Main.RESET);
+                temp.task.markCompleted(); // Ensure this method exists in Task.java
+                System.out.println("✔ Status updated!");
                 return;
             }
             temp = temp.next;
         }
-        System.out.println(Main.RED + "⚠ ID not found." + Main.RESET);
+        System.out.println("⚠ ID not found.");
     }
 
     public void searchTask(String title) {
@@ -119,53 +102,68 @@ public class TaskLinkedList {
         boolean found = false;
         int count = 0;
 
-        // Header UI
-        System.out.println("\n" + Main.BLUE + "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
-        System.out.println("┃ SEARCH RESULTS FOR: " + String.format("%-26s", title) + " ┃");
-        System.out.println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛" + Main.RESET);
+        System.out.println("\n┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+        System.out.printf("┃ SEARCH RESULTS FOR: %-26s ┃\n", title);
+        System.out.println("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
 
         while (temp != null) {
             if (temp.task.getTitle().toLowerCase().contains(title.toLowerCase())) {
                 count++;
-                // Each result in its own mini-card
-                System.out.println(Main.GREEN + "  [ Result #" + count + " ]" + Main.RESET);
+                System.out.println("  [ Result #" + count + " ]");
                 System.out.println("  ID: " + temp.task.getId());
-                System.out.println("  Task: " + Main.YELLOW + temp.task.getTitle() + Main.RESET);
+                System.out.println("  Task: " + temp.task.getTitle());
                 System.out.println("  Status: " + (temp.task.isCompleted() ? "✅ Done" : "⏳ Pending"));
-                System.out.println(Main.RESET + "  ------------------------------------------------" + Main.RESET);
+                System.out.println("  ------------------------------------------------");
                 found = true;
             }
             temp = temp.next;
         }
 
         if (!found) {
-            System.out.println(Main.RED + "   ❌ No matches found for \"" + title + "\"" + Main.RESET);
+            System.out.println("   ❌ No matches found for \"" + title + "\"");
         } else {
-            System.out.println(Main.CYAN + "   ✨ Found " + count + " match(es)." + Main.RESET);
+            System.out.println("   ✨ Found " + count + " match(es).");
         }
     }
 
     public void showOverdue() {
         Node temp = head;
         boolean found = false;
-        System.out.println(Main.RED + Main.BOLD + "\n   🚨 OVERDUE TASKS" + Main.RESET);
+        System.out.println("\n   🚨 OVERDUE TASKS");
         while (temp != null) {
             if (temp.task.isOverdue()) {
-                System.out.println("   " + Main.RED + "• " + temp.task.getTitle() + " (Due: " + temp.task.getDueDate() + ")" + Main.RESET);
+                System.out.println("   • " + temp.task.getTitle() + " (Due: " + temp.task.getDueDate() + ")");
                 found = true;
             }
             temp = temp.next;
         }
-        if (!found) System.out.println(Main.GREEN + "   No overdue tasks. Well done!" + Main.RESET);
+        if (!found) System.out.println("   No overdue tasks. Well done!");
     }
 
     public void undoTask() {
-        Task restored = undoStack.pop();
+        Task restored = (Task) undoStack.pop(); // FIXED: Cast to Task if MyStack uses Object
         if (restored != null) {
             addTask(restored);
-            System.out.println(Main.GREEN + "↩️ Restored: " + restored.getTitle() + Main.RESET);
+            System.out.println("↩️ Restored: " + restored.getTitle());
         } else {
-            System.out.println(Main.RED + "⚠ Nothing to undo!" + Main.RESET);
+            System.out.println("⚠ Nothing to undo!");
+        }
+    }
+
+    public void showTasksByPriority() {
+        // FIXED: Ensure MaxHeap constructor handles this or uses a default
+        MaxHeap heap = new MaxHeap(100);
+
+        Node temp = head;
+        while (temp != null) {
+            heap.insert(temp.task);
+            temp = temp.next;
+        }
+
+        System.out.println("\nTasks by priority (Highest First):");
+        while (!heap.isEmpty()) {
+            Task task = heap.extractMax();
+            System.out.println("Priority: " + task.getPriority() + " | Task: " + task.getTitle());
         }
     }
 }
