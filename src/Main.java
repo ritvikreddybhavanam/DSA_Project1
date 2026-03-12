@@ -1,12 +1,13 @@
 import models.Task;
 import services.TaskLinkedList;
+import services.LinearSearch;
+import services.BubbleSort;
 
 import java.time.LocalDate;
 import java.util.Scanner;
 
 public class Main {
 
-    // ===== Professional UI Colors =====
     public static final String RESET = "\u001B[0m";
     public static final String RED = "\u001B[31m";
     public static final String GREEN = "\u001B[32m";
@@ -19,7 +20,7 @@ public class Main {
     static int idCounter = 1;
 
     public static void printCentered(String text) {
-        int width = 74; // Adjusted to fit inside the box border
+        int width = 74;
         int padding = (width - text.length()) / 2;
         System.out.print(" ".repeat(Math.max(0, padding)) + text);
         System.out.println();
@@ -47,8 +48,14 @@ public class Main {
     public static Task userInput(Scanner sc) {
         System.out.println("\n" + PURPLE + BOLD + "   ─── ADD NEW TASK ───" + RESET);
 
-        System.out.print(CYAN + "   Enter Title: " + RESET);
-        String title = sc.nextLine();
+        String title = "";
+        while (title.trim().isEmpty()) {
+            System.out.print(CYAN + "   Enter Title: " + RESET);
+            title = sc.nextLine();
+            if (title.trim().isEmpty()) {
+                System.out.println(RED + "   ⚠ Title cannot be empty!" + RESET);
+            }
+        }
 
         LocalDate dueDate = null;
         int priority = 0;
@@ -67,9 +74,14 @@ public class Main {
                 System.out.print(CYAN + "   Enter Priority (1-10): " + RESET);
                 priority = Integer.parseInt(sc.nextLine());
 
+                if (priority < 1 || priority > 10) {
+                    System.out.println(RED + "   ⚠ Priority must be between 1 and 10." + RESET);
+                    continue;
+                }
+
                 break;
             } catch (Exception e) {
-                System.out.println(RED + "   ⚠ Invalid format! Please use YYYY-MM-DD for date and a number for priority." + RESET);
+                System.out.println(RED + "   ⚠ Invalid input! Ensure date is YYYY-MM-DD and priority is a number." + RESET);
             }
         }
 
@@ -85,8 +97,9 @@ public class Main {
 
             int choice;
             try {
-                choice = Integer.parseInt(sc.nextLine());
-            } catch (Exception e) {
+                String input = sc.nextLine();
+                choice = Integer.parseInt(input);
+            } catch (NumberFormatException e) {
                 System.out.println(RED + "   ⚠ Invalid input! Please enter a number." + RESET);
                 continue;
             }
@@ -96,26 +109,31 @@ public class Main {
                     list.addTask(userInput(sc));
                     System.out.println(GREEN + "   ✔ Task created successfully!" + RESET);
                 }
-                case 2 -> list.displayTasks();
+                case 2 -> {
+                    BubbleSort.bubbleSortById(list.getHead());
+                    list.displayTasks();
+                }
                 case 3 -> list.showTasksByPriority();
                 case 4 -> {
                     System.out.print(CYAN + "   Enter Task ID to complete: " + RESET);
                     try {
                         list.markCompleted(Integer.parseInt(sc.nextLine()));
                     } catch (Exception e) {
-                        System.out.println(RED + "   Invalid ID format." + RESET);
+                        System.out.println(RED + "   ⚠ Invalid ID format." + RESET);
                     }
                 }
                 case 5 -> {
                     System.out.print(CYAN + "   Enter title keyword: " + RESET);
-                    list.searchTask(sc.nextLine());
+                    String keyword = sc.nextLine();
+                    System.out.println(PURPLE + "\n   ─── SEARCH RESULTS ───" + RESET);
+                    LinearSearch.searchByTitle(list.getHead(), keyword);
                 }
                 case 6 -> {
                     System.out.print(CYAN + "   Enter Task ID to delete: " + RESET);
                     try {
                         list.deleteTask(Integer.parseInt(sc.nextLine()));
                     } catch (Exception e) {
-                        System.out.println(RED + "   Invalid ID format." + RESET);
+                        System.out.println(RED + "   ⚠ Invalid ID format." + RESET);
                     }
                 }
                 case 7 -> list.showOverdue();
