@@ -33,12 +33,12 @@ public class Main {
         System.out.println("   ╠══════════════════════════════════════════════════════════════════════╣");
         System.out.println(RESET + CYAN);
 
-        System.out.println("     [1] ➕ Add New Task             [5] 🔍 Search by Title");
-        System.out.println("     [2] 📋 View All Tasks           [6] ❌ Delete Task");
-        System.out.println("     [3] ⭐ View by Priority         [7] ⚠️  Show Overdue");
-        System.out.println("     [4] ✅ Mark Completed           [8] ↩️  Undo Last Delete");
+        System.out.println("     [1] ➕ Add New Task             [6] ❌ Delete Task");
+        System.out.println("     [2] 📋 View All Tasks           [7] ⚠️  Show Overdue");
+        System.out.println("     [3] ⭐ View by Priority         [8] ↩️  Undo Last Delete");
+        System.out.println("     [4] ✅ Mark Completed           [9] 🆔 Search by ID");
+        System.out.println("     [5] 🔍 Search by Title          [0] 🚪 Exit System");
         System.out.println();
-        System.out.println(RED + "                       [0] 🚪 Exit System" + RESET);
 
         System.out.println(BLUE + BOLD);
         System.out.println("   ╚══════════════════════════════════════════════════════════════════════╝");
@@ -138,12 +138,23 @@ public class Main {
                 }
                 case 7 -> list.showOverdue();
                 case 8 -> list.undoTask();
+                case 9 -> {
+                    System.out.print(CYAN + "   Enter Task ID to find: " + RESET);
+                    try {
+                        int searchId = Integer.parseInt(sc.nextLine());
+                        System.out.println(PURPLE + "\n   ─── ID SEARCH RESULT ───" + RESET);
+                        // Passes list.getHead() which is a Node
+                        LinearSearch.searchById(list.getHead(), searchId);
+                    } catch (NumberFormatException e) {
+                        System.out.println(RED + "   ⚠ Invalid ID format! Please enter a number." + RESET);
+                    }
+                }
                 case 0 -> {
                     System.out.println(GREEN + "   Exiting... Goodbye!" + RESET);
                     sc.close();
                     return;
                 }
-                default -> System.out.println(RED + "   ⚠ Invalid choice! Please select 0-8." + RESET);
+                default -> System.out.println(RED + "   ⚠ Invalid choice! Please select 0-9." + RESET);
             }
         }
     }
